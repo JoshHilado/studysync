@@ -8,9 +8,6 @@ export default function Home() {
 
   return (
     <>
-    <head>
-      <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet"/>
-    </head>
       <div className="bg-[#F0EDCC] min-h-screen flex flex-col justify-center items-center relative">
         {/* StudySync Title */}
         <div className="absolute top-[18%] font-black text-[#02343F] text-5xl">
