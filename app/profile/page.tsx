@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { FaHome, FaUserCircle, FaSignOutAlt, FaCalendarAlt, FaBell } from "react-icons/fa";
+import { FaHome, FaUserCircle, FaSignOutAlt, FaCalendarAlt, FaArrowLeft } from "react-icons/fa";
 
 export default function Profile() {
   const router = useRouter();
@@ -19,22 +19,27 @@ export default function Profile() {
     }
   };
 
+  const handleSignOut = () => {
+    router.push("/login");
+  };
+
   return (
     <div className="flex flex-col h-screen bg-[#F0EDCC] px-4 py-6 font-[Poppins] relative">
       {/* Header */}
       <div className="flex justify-between items-center text-3xl text-[#02343F]">
-        <span>Settings</span>
-        <button onClick={() => router.push("/notification")}> 
-          <FaBell className="w-9 h-9" />
+        <button onClick={() => router.push("/dashboard")}>
+          <FaArrowLeft className="w-8 h-8" />
         </button>
+        <span className="flex-grow text-center font-[Poppins]">Profile</span>
+        <div className="w-8 h-8" />
       </div>
 
       {/* Profile Section */}
-      <div className="mt-6 flex flex-col items-center">
+      <div className="bg-[#02343F] text-[#F0EDCC] w-full max-w-sm p-6 rounded-lg mx-auto mt-6 flex flex-col items-center">
         {image ? (
-          <img src={image} alt="Profile" className="w-24 h-24 rounded-full object-cover" />
+          <img src={image} alt="Profile" className="w-24 h-24 rounded-full object-cover mb-4" />
         ) : (
-          <div className="w-24 h-24 rounded-full bg-gray-300 flex items-center justify-center">
+          <div className="w-24 h-24 rounded-full bg-gray-300 flex items-center justify-center mb-4">
             <FaUserCircle className="w-12 h-12 text-white" />
           </div>
         )}
@@ -42,14 +47,17 @@ export default function Profile() {
           type="file"
           accept="image/*"
           onChange={handleImageChange}
-          className="mt-2 text-sm text-[#02343F]"
+          className="mb-4 text-sm text-[#F0EDCC]"
         />
-        <p className="text-xl font-bold mt-2 text-[#02343F]">Davon Heramis</p>
+        <p className="text-xl font-bold">Davon Heramis</p>
       </div>
 
-      {/* Sign Out */}
-      <div className="mt-auto px-6 pb-20">
-        <button className="flex items-center text-red-600 font-semibold">
+      {/* Sign Out Button - slightly bigger and higher */}
+      <div className="absolute bottom-28 left-0 w-full flex justify-center">
+        <button
+          onClick={() => router.push("/")}
+          className="flex items-center text-red-600 text-base font-semibold px-6 py-2 bg-white rounded-lg shadow-md"
+        >
           <FaSignOutAlt className="mr-2" />
           Sign Out
         </button>
@@ -57,7 +65,10 @@ export default function Profile() {
 
       {/* Navigation Bar */}
       <div className="absolute bottom-0 left-0 w-full bg-white py-4 rounded-t-2xl shadow-lg flex items-center">
-        <button className="flex flex-col flex-1 items-center text-[#02343F] space-y-1">
+        <button 
+          onClick={() => router.push("/dashboard")}
+          className="flex flex-col flex-1 items-center text-[#02343F] space-y-1"
+        >
           <FaHome className="w-9 h-9" />
           <span className="text-sm">Home</span>
         </button>
@@ -65,7 +76,7 @@ export default function Profile() {
           <FaUserCircle className="w-9 h-9" />
           <span className="text-sm">Profile</span>
         </button>
-        <button
+        <button 
           onClick={() => router.push("/calendar")}
           className="flex flex-col flex-1 items-center text-[#02343F] space-y-1"
         >
