@@ -1,22 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 
 export default function Home() {
-  const router = useRouter();
+  const router = useRouter(); // Initialize router
 
   return (
     <>
-<<<<<<< HEAD
-      <head>
-        <link
-          href="https://fonts.googleapis.com/css?family=Poppins"
-          rel="stylesheet"
-        />
-      </head>
-=======
->>>>>>> 573a5923ae999a470954f7194439d831f9965260
+      
       <div className="bg-[#F0EDCC] min-h-screen flex flex-col justify-center items-center relative">
         {/* StudySync Title */}
         <div className="absolute top-[18%] font-black text-[#02343F] text-5xl">
