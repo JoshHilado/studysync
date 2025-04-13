@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { FaBell, FaHome, FaUserCircle, FaCalendarAlt, FaArrowLeft } from "react-icons/fa";
+import { FaHome, FaUserCircle, FaCalendarAlt, FaArrowLeft } from "react-icons/fa";
 
 export default function AddTask() {
   const [subject, setSubject] = useState("");
@@ -37,9 +37,6 @@ export default function AddTask() {
             <FaArrowLeft className="w-8 h-8" />
           </button>
           <span className="flex-grow text-center">Add Task</span>
-          <button onClick={() => router.push("/notification")}>
-            <FaBell className="w-8 h-8" />
-          </button>
         </div>
 
         {/* Task Form */}
