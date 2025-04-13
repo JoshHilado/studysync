@@ -1,6 +1,7 @@
 {
   "name": "StudySync",
   "short_name": "StudySync",
+<<<<<<< HEAD
   "icons": [
     {
       "src": "/icons/android-chrome-192x192.png",
@@ -15,13 +16,43 @@
     },
     {
       "src": "/icons/icon-512x512.png",
+=======
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512x512.png",
+>>>>>>> 573a5923ae999a470954f7194439d831f9965260
       "sizes": "512x512",
       "type": "image/png"
     }
   ],
+<<<<<<< HEAD
   "theme_color": "#FFFFFF",
   "background_color": "#FFFFFF",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait"
+=======
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop-screenshot.png",
+      "type": "image/png",
+      "sizes": "2460x1674",
+      "form_factor": "wide"  
+    },
+    {
+      "src": "/screenshots/mobile-screenshot.png",
+      "type": "image/png",
+      "sizes": "1080x1920"
+    }
+  ]
+>>>>>>> 573a5923ae999a470954f7194439d831f9965260
 }
