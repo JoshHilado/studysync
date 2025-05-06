@@ -26,25 +26,27 @@ export default function Notifications() {
 
       {/* Navigation Bar */}
       <div className="absolute bottom-0 left-0 w-full bg-white py-4 rounded-t-2xl shadow-lg flex items-center">
-        <button
+          <button 
           onClick={() => router.push("/dashboard")}
-          className="flex flex-col flex-1 items-center text-[#02343F] space-y-1"
-        >
-          <FaHome className="w-9 h-9" />
-          <span className="text-sm">Home</span>
-        </button>
-        <button className="flex flex-col flex-1 items-center text-[#02343F] space-y-1">
-          <FaUserCircle className="w-9 h-9" />
-          <span className="text-sm">Profile</span>
-        </button>
-        <button
-          onClick={() => router.push("/calendar")}
-          className="flex flex-col flex-1 items-center text-[#02343F] space-y-1"
-        >
-          <FaCalendarAlt className="w-9 h-9" />
-          <span className="text-sm">Calendar</span>
-        </button>
-      </div>
+          className="flex flex-col flex-1 items-center text-[#02343F] space-y-1">
+            <FaHome className="w-9 h-9" />
+            <span className="text-sm">Home</span>
+          </button>
+          <button 
+            onClick={() => router.push("/profile")}
+            className="flex flex-col flex-1 items-center text-[#02343F] space-y-1"
+          >
+            <FaUserCircle className="w-9 h-9" />
+            <span className="text-sm">Profile</span>
+          </button>
+          <button 
+            onClick={() => router.push("/calendar")}
+            className="flex flex-col flex-1 items-center text-[#02343F] space-y-1"
+          >
+            <FaCalendarAlt className="w-9 h-9" />
+            <span className="text-sm">Calendar</span>
+          </button>
+        </div>
     </div>
   );
 }
