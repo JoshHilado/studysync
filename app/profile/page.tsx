@@ -4,41 +4,44 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useClerk, useUser } from "@clerk/nextjs";
 import { FaHome, FaUserCircle, FaSignOutAlt, FaCalendarAlt, FaArrowLeft, FaEdit } from "react-icons/fa";
-import { db } from "../../lib/firebase"; // Firebase setup
-import { doc, setDoc, getDoc } from "firebase/firestore"; // Firestore imports
+import { db } from "../../lib/firebase"; // Assuming Firebase is set up in this path
+import { doc, getDoc, setDoc } from "firebase/firestore"; // Firestore imports
+import FlashcardModal from "../components/flashcardmodal";
 
 export default function Profile() {
   const router = useRouter();
   const { signOut } = useClerk();
   const { user } = useUser();
-  const [imageUrl, setImageUrl] = useState<string>(user?.profileImageUrl || ""); // Default to the Clerk profile image
+  const [imageUrl, setImageUrl] = useState<string>(""); // Default to empty string
   const [isEditing, setIsEditing] = useState(false); // State to toggle image URL input visibility
   const [isSaving, setIsSaving] = useState(false); // To track saving state
 
-  // Fetch the stored image URL from Firestore when the component mounts
+  // Fetch the profile image URL when the component mounts
   useEffect(() => {
-    const fetchImageUrl = async () => {
-      if (user) {
-        const userRef = doc(db, "users", user.id); // Firestore path to user's data
-        const userDoc = await getDoc(userRef);
-        if (userDoc.exists()) {
-          const data = userDoc.data();
-          if (data?.profileImageUrl) {
-            setImageUrl(data.profileImageUrl); // Set the image URL from Firestore if it exists
+    const fetchProfileImage = async () => {
+      if (user?.id) {
+        try {
+          const userDocRef = doc(db, "users", user.id); // Firestore path to user's data
+          const userDoc = await getDoc(userDocRef);
+          if (userDoc.exists()) {
+            const data = userDoc.data();
+            if (data?.profileImageUrl) {
+              setImageUrl(data.profileImageUrl); // Set image URL from Firestore
+            }
           }
+        } catch (error) {
+          console.error("Error fetching profile image:", error);
         }
       }
     };
 
-    fetchImageUrl();
-  }, [user]);
+    fetchProfileImage();
+  }, [user?.id]); // Only re-run if the user id changes
 
-  // Handle changes to the image URL input field
   const handleImageUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setImageUrl(e.target.value); // Update the state with the new URL
+    setImageUrl(e.target.value); // Update the state with the URL
   };
 
-  // Save the image URL to Firestore
   const handleAddImageLink = async () => {
     if (!imageUrl) return; // If there's no URL, do nothing
 
@@ -46,10 +49,9 @@ export default function Profile() {
 
     try {
       // Store the image URL in Firestore
-      const userRef = doc(db, "users", user?.id || "");
-      await setDoc(userRef, {
+      await setDoc(doc(db, "users", user?.id || ""), {
         profileImageUrl: imageUrl,
-      }, { merge: true }); // Merge to ensure no other data is overwritten
+      });
 
       alert("Profile image link added successfully!");
     } catch (error) {
@@ -122,6 +124,9 @@ export default function Profile() {
             </button>
           </div>
         )}
+      </div>
+        <div className="flex flex-col items-center mt-6">
+      <FlashcardModal /> {/* Flashcard Modal Component */}
       </div>
 
       {/* Sign Out Button */}

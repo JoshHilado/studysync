@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { startOfMonth, endOfMonth, eachDayOfInterval, format, isSameDay } from "date-fns";
 import { FaHome, FaUserCircle, FaCalendarAlt, FaArrowLeft, FaTimes } from "react-icons/fa";
 import { db } from "../../lib/firebase"; // Assuming Firebase is set up in this path
-import { collection, query, where, onSnapshot } from "firebase/firestore"; // Firebase Firestore imports
+import { collection, query, where, onSnapshot, deleteDoc, doc } from "firebase/firestore"; // Firestore imports
 import { Timestamp } from "firebase/firestore";
 
 export default function Calendar() {
@@ -43,7 +43,9 @@ export default function Calendar() {
           };
         });
 
-        setTasks(taskList);
+        // Filter out completed tasks
+        const filteredTasks = taskList.filter(task => !task.isCompleted);
+        setTasks(filteredTasks);
       });
 
       return () => unsubscribe(); // Cleanup listener
@@ -77,6 +79,19 @@ export default function Calendar() {
   const closeModal = () => {
     setModalVisible(false);
     setSelectedTasks([]); // Clear the selected tasks when the modal is closed
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+    try {
+      // Remove the task from Firestore
+      await deleteDoc(doc(db, "tasks", taskId));
+      // Also remove the task from the local state
+      setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+      setSelectedTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+    } catch (error) {
+      console.error("Error deleting task: ", error);
+      alert("Failed to delete task.");
+    }
   };
 
   return (
@@ -164,7 +179,15 @@ export default function Calendar() {
               ) : (
                 selectedTasks.map((task) => (
                   <div key={task.id} className="text-sm py-1">
-                    {task.subject}
+                    <div>{task.subject}</div>
+                    {task.isCompleted && (
+                      <button
+                        onClick={() => handleDeleteTask(task.id)}
+                        className="text-red-600 text-xs mt-1"
+                      >
+                        Delete
+                      </button>
+                    )}
                   </div>
                 ))
               )}
