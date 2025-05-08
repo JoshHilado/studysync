@@ -1,35 +1,42 @@
-"use client"
+'use client';
 
-<<<<<<< HEAD
-import { SignIn } from "@clerk/nextjs"
+import { useUser } from '@clerk/nextjs';
+import { useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 
-export default function SignInPage() {
-  return (
-    <div className="min-h-screen bg-[#F0EDCC] flex flex-col items-center justify-center">
-      <h1 className="text-5xl font-black text-[#02343F] mb-8">StudySync</h1>
-
-      <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
-        <SignIn
-          appearance={{
-            elements: {
-              card: "shadow-none border-none",
-              headerTitle: "text-[#02343F] text-3xl font-bold",
-              formButtonPrimary: "bg-[#02343F] text-[#F0EDCC] hover:bg-[#012830]",
-              footerActionText: "text-black",
-              footerActionLink: "text-[#3619B8] font-bold",
-            },
-          }}
-          afterSignInUrl="/dashboard"
-          signUpUrl="/sign_up"
-        />
-      </div>
-=======
 export default function StudySyncInfoPage() {
+  const { isLoaded, isSignedIn, user } = useUser();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    // Only redirect if signed in AND currently on root path `/`
+    if (isLoaded && isSignedIn && user && pathname === '/') {
+      const userData = {
+        id: user.id,
+        name: user.fullName,
+        email: user.primaryEmailAddress?.emailAddress,
+      };
+
+      localStorage.setItem('studysync_user', JSON.stringify(userData));
+      router.push('/dashboard');
+    }
+  }, [isLoaded, isSignedIn, user, pathname, router]);
+
   return (
     <div className="min-h-screen bg-[#F0EDCC] flex flex-col items-center justify-center px-6 text-center">
       <h1 className="text-5xl font-black text-[#02343F] mb-4">StudySync</h1>
+
+      {isLoaded && isSignedIn && (
+        <p className="text-[#02343F] text-lg mb-4">
+          Welcome back, <span className="font-bold">{user.firstName}</span>!
+        </p>
+      )}
+
       <p className="text-lg text-[#02343F] max-w-xl mb-6">
-        StudySync is your all-in-one academic planner designed to help students organize tasks, manage deadlines, and stay on top of their academic goals. With a clean interface and smart features, it turns school chaos into calm productivity.
+        StudySync is your all-in-one academic planner designed to help students organize tasks,
+        manage deadlines, and stay on top of their academic goals. With a clean interface and smart
+        features, it turns school chaos into calm productivity.
       </p>
 
       <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
@@ -49,7 +56,6 @@ export default function StudySyncInfoPage() {
         </a>
         .
       </p>
->>>>>>> master
     </div>
-  )
+  );
 }

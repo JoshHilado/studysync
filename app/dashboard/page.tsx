@@ -1,79 +1,153 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Head from "next/head";
-import { FaBell, FaHome, FaPen, FaUserCircle, FaCalendarAlt } from "react-icons/fa";
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { FaHome, FaUserCircle, FaCalendarAlt, FaArrowLeft, FaPen } from 'react-icons/fa';
+import { db } from '../../lib/firebase';
+import { collection, query, where, onSnapshot, updateDoc, doc } from 'firebase/firestore';
 
-export default function StudySync() {
-  const [tasks, setTasks] = useState([]);
+interface Task {
+  id: string;
+  subject: string;
+  isCompleted: boolean;
+  dueDate: string; // stored as string in "YYYY-MM-DD" format
+}
+
+export default function Dashboard() {
+  const [tasks, setTasks] = useState<Task[]>([]);
   const router = useRouter();
 
+  const user = typeof window !== "undefined"
+    ? JSON.parse(localStorage.getItem('studysync_user') || '{}')
+    : {};
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const q = query(collection(db, 'tasks'), where('userId', '==', user.id));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const taskList = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Task[];
+      setTasks(taskList);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
   const getCurrentDate = () => {
-    const options: Intl.DateTimeFormatOptions = { month: "long", day: "numeric" };
-    return new Date().toLocaleDateString("en-US", options);
+    const options: Intl.DateTimeFormatOptions = { month: 'long', day: 'numeric' };
+    return new Date().toLocaleDateString('en-US', options);
+  };
+
+  const formatDate = (date: string) => {
+    if (!date) return '';
+
+    // Convert the string date to a Date object
+    const parsedDate = new Date(date);
+
+    // Ensure the parsedDate is valid
+    if (isNaN(parsedDate.getTime())) return '';
+
+    // Return the formatted date with year, month, and day
+    return parsedDate.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
+  const getTaskStatus = (dueDate: string) => {
+    const currentDate = new Date();
+    const taskDate = new Date(dueDate);
+
+    if (taskDate < currentDate) {
+      return '(PAST DUE)';
+    } else if (taskDate.toDateString() === currentDate.toDateString()) {
+      return '(ONGOING)';
+    } else {
+      return '';
+    }
+  };
+
+  const handleTaskCompletion = async (taskId: string, isCompleted: boolean) => {
+    try {
+      const taskRef = doc(db, 'tasks', taskId);
+      await updateDoc(taskRef, {
+        isCompleted: !isCompleted,
+      });
+    } catch (error) {
+      console.error('Error updating task:', error);
+      alert('Failed to update task.');
+    }
   };
 
   return (
-    <>
-      <Head>
-        <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
-      </Head>
-
-      <div className="flex flex-col h-screen bg-[#F0EDCC] px-4 py-6 font-[Poppins] relative">
-        {/* Header */}
-        <div className="flex justify-between items-center text-3xl text-[#02343F]">
-          <span>StudySync</span>
-          <button onClick={() => router.push("/notification")}>
-            <FaBell className="w-9 h-9" />
-          </button>
-        </div>
-
-        {/* Date Section */}
-        <div className="flex justify-between mt-4 text-[#02343F] text-4xl">
-          <span>Today</span>
-          <span>{getCurrentDate()}</span>
-        </div>
-
-        {/* Task Card */}
-        <div className="mt-6 bg-[#02343F] text-[#F0EDCC] flex items-center justify-center text-6xl p-16 rounded-lg relative h-120">
-          {tasks.length === 0 ? "No Tasks" : tasks.map((task, index) => <p key={index}>{task}</p>)}
-        </div>
-
-        {/* Add Task Button */}
-        <div className="absolute bottom-20 ml-80">
-          <button 
-            onClick={() => router.push("/add_tasks")}
-            className="bg-[#02343F] text-white p-4 rounded-full shadow-lg mb-10"
-          >
-            <FaPen className="w-9 h-9" />
-          </button>
-        </div>
-
-        {/* Navigation Bar */}
-        <div className="absolute bottom-0 left-0 w-full bg-white py-4 rounded-t-2xl shadow-lg flex items-center">
-          <button 
-          onClick={() => router.push("/dashboard")}
-          className="flex flex-col flex-1 items-center text-[#02343F] space-y-1">
-            <FaHome className="w-9 h-9" />
-            <span className="text-sm">Home</span>
-          </button>
-          <button 
-            onClick={() => router.push("/profile")}
-            className="flex flex-col flex-1 items-center text-[#02343F] space-y-1"
-          >
-            <FaUserCircle className="w-9 h-9" />
-            <span className="text-sm">Profile</span>
-          </button>
-          <button 
-            onClick={() => router.push("/calendar")}
-            className="flex flex-col flex-1 items-center text-[#02343F] space-y-1"
-          >
-            <FaCalendarAlt className="w-9 h-9" />
-            <span className="text-sm">Calendar</span>
-          </button>
-        </div>
+    <div className="flex flex-col h-screen bg-[#F0EDCC] px-4 py-6 font-[Poppins] relative">
+      {/* Header */}
+      <div className="flex justify-between items-center text-3xl text-[#02343F]">
+        <span>StudySync</span>
       </div>
-    </>
+
+      {/* Date Section */}
+      <div className="flex justify-between mt-4 text-[#02343F] text-4xl">
+        <span>Today</span>
+        <span>{getCurrentDate()}</span>
+      </div>
+
+      {/* Task List */}
+      <div className="mt-6 bg-[#02343F] text-[#F0EDCC] p-6 rounded-lg">
+        {tasks.length === 0 ? (
+          <p>No Tasks</p>
+        ) : (
+          tasks.map((task) => (
+            <div key={task.id} className="flex flex-col p-4 border-b border-[#F0EDCC]">
+              <div className="flex items-center space-x-4">
+                <input
+                  type="checkbox"
+                  checked={task.isCompleted}
+                  onChange={() => handleTaskCompletion(task.id, task.isCompleted)}
+                  className="w-6 h-6"
+                />
+                <span className={`text-lg ${task.isCompleted ? 'line-through' : ''}`}>
+                  {task.subject}
+                </span>
+              </div>
+              <div className="text-sm mt-2">
+                {/* Show date if not completed */}
+                {!task.isCompleted && <span>{formatDate(task.dueDate)}</span>}
+
+                {/* Show status if not completed */}
+                {!task.isCompleted && <span className="text-gray-500 ml-2">{getTaskStatus(task.dueDate)}</span>}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Add Task Button */}
+      <div className="absolute bottom-20 ml-80">
+        <button onClick={() => router.push('/add_tasks')} className="bg-[#02343F] text-white p-4 rounded-full shadow-lg mb-10">
+          <FaPen className="w-9 h-9" />
+        </button>
+      </div>
+
+      {/* Navigation Bar */}
+      <div className="absolute bottom-0 left-0 w-full bg-white py-4 rounded-t-2xl shadow-lg flex items-center">
+        <button onClick={() => router.push('/dashboard')} className="flex flex-col flex-1 items-center text-[#02343F] space-y-1">
+          <FaHome className="w-9 h-9" />
+          <span className="text-sm">Home</span>
+        </button>
+        <button onClick={() => router.push('/profile')} className="flex flex-col flex-1 items-center text-[#02343F] space-y-1">
+          <FaUserCircle className="w-9 h-9" />
+          <span className="text-sm">Profile</span>
+        </button>
+        <button onClick={() => router.push('/calendar')} className="flex flex-col flex-1 items-center text-[#02343F] space-y-1">
+          <FaCalendarAlt className="w-9 h-9" />
+          <span className="text-sm">Calendar</span>
+        </button>
+      </div>
+    </div>
   );
 }
