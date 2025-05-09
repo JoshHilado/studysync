@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { FaHome, FaUserCircle, FaCalendarAlt, FaArrowLeft, FaPen } from 'react-icons/fa';
+import { FaHome, FaUserCircle, FaCalendarAlt, FaArrowLeft, FaPen, FaBell } from 'react-icons/fa';
 import { db } from '../../lib/firebase';
 import { collection, query, where, onSnapshot, updateDoc, doc } from 'firebase/firestore';
 
@@ -43,14 +43,8 @@ export default function Dashboard() {
 
   const formatDate = (date: string) => {
     if (!date) return '';
-
-    // Convert the string date to a Date object
     const parsedDate = new Date(date);
-
-    // Ensure the parsedDate is valid
     if (isNaN(parsedDate.getTime())) return '';
-
-    // Return the formatted date with year, month, and day
     return parsedDate.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
@@ -61,7 +55,6 @@ export default function Dashboard() {
   const getTaskStatus = (dueDate: string) => {
     const currentDate = new Date();
     const taskDate = new Date(dueDate);
-
     if (taskDate < currentDate) {
       return '(PAST DUE)';
     } else if (taskDate.toDateString() === currentDate.toDateString()) {
@@ -115,10 +108,7 @@ export default function Dashboard() {
                 </span>
               </div>
               <div className="text-sm mt-2">
-                {/* Show date if not completed */}
                 {!task.isCompleted && <span>{formatDate(task.dueDate)}</span>}
-
-                {/* Show status if not completed */}
                 {!task.isCompleted && <span className="text-gray-500 ml-2">{getTaskStatus(task.dueDate)}</span>}
               </div>
             </div>
@@ -146,6 +136,10 @@ export default function Dashboard() {
         <button onClick={() => router.push('/calendar')} className="flex flex-col flex-1 items-center text-[#02343F] space-y-1">
           <FaCalendarAlt className="w-9 h-9" />
           <span className="text-sm">Calendar</span>
+        </button>
+        <button onClick={() => router.push('/notification')} className="flex flex-col flex-1 items-center text-[#02343F] space-y-1">
+          <FaBell className="w-9 h-9" />
+          <span className="text-sm">Notifications</span>
         </button>
       </div>
     </div>

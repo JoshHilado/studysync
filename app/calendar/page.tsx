@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { startOfMonth, endOfMonth, eachDayOfInterval, format, isSameDay } from "date-fns";
-import { FaHome, FaUserCircle, FaCalendarAlt, FaArrowLeft, FaTimes } from "react-icons/fa";
+import { FaHome, FaUserCircle, FaCalendarAlt, FaArrowLeft, FaTimes, FaBell } from "react-icons/fa";
 import { db } from "../../lib/firebase"; // Assuming Firebase is set up in this path
 import { collection, query, where, onSnapshot, deleteDoc, doc } from "firebase/firestore"; // Firestore imports
 import { Timestamp } from "firebase/firestore";
@@ -38,8 +38,9 @@ export default function Calendar() {
 
           return {
             id: doc.id,
-            ...data,
             date: taskDueDate,
+            subject: data.subject || "", // Ensure subject is included
+            isCompleted: data.isCompleted || false, // Ensure isCompleted is included
           };
         });
 
@@ -198,26 +199,21 @@ export default function Calendar() {
 
       {/* Navigation Bar */}
       <div className="absolute bottom-0 left-0 w-full bg-white py-4 rounded-t-2xl shadow-lg flex items-center">
-        <button
-          onClick={() => router.push("/dashboard")}
-          className="flex flex-col flex-1 items-center text-[#02343F] space-y-1"
-        >
+        <button onClick={() => router.push('/dashboard')} className="flex flex-col flex-1 items-center text-[#02343F] space-y-1">
           <FaHome className="w-9 h-9" />
           <span className="text-sm">Home</span>
         </button>
-        <button
-          onClick={() => router.push("/profile")}
-          className="flex flex-col flex-1 items-center text-[#02343F] space-y-1"
-        >
+        <button onClick={() => router.push('/profile')} className="flex flex-col flex-1 items-center text-[#02343F] space-y-1">
           <FaUserCircle className="w-9 h-9" />
           <span className="text-sm">Profile</span>
         </button>
-        <button
-          onClick={() => router.push("/calendar")}
-          className="flex flex-col flex-1 items-center text-[#02343F] space-y-1"
-        >
+        <button onClick={() => router.push('/calendar')} className="flex flex-col flex-1 items-center text-[#02343F] space-y-1">
           <FaCalendarAlt className="w-9 h-9" />
           <span className="text-sm">Calendar</span>
+        </button>
+        <button onClick={() => router.push('/notification')} className="flex flex-col flex-1 items-center text-[#02343F] space-y-1">
+          <FaBell className="w-9 h-9" />
+          <span className="text-sm">Notifications</span>
         </button>
       </div>
     </div>
