@@ -44,6 +44,18 @@ export default function Notifications() {
     return date < currentDate;
   };
 
+  // Helper function to calculate the number of days left or passed
+  const calculateDaysLeft = (date: Date) => {
+    const currentDate = new Date();
+    const timeDiff = date.getTime() - currentDate.getTime();
+    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)); // Convert time difference to days
+
+    // If the task is due today, mark it as 1 day past due
+    if (daysDiff === 0) return -1; // This will make it treated as 1 day past due
+
+    return daysDiff;
+  };
+
   // Fetch notifications for tasks that the user has
   useEffect(() => {
     if (!user?.id) return;
@@ -62,6 +74,7 @@ export default function Notifications() {
         const isTaskDueToday = isToday(taskDate);
         const isTaskPastDue = isPastDue(taskDate);
         const dueDateFormatted = formatDisplayDate(taskDate);
+        const daysLeft = calculateDaysLeft(taskDate);
 
         return {
           taskId: task.id,
@@ -69,6 +82,7 @@ export default function Notifications() {
           isDueToday: isTaskDueToday,
           isPastDue: isTaskPastDue,
           dueDateFormatted: dueDateFormatted,
+          daysLeft: daysLeft,
         };
       });
 
@@ -122,15 +136,23 @@ export default function Notifications() {
                 {notif.isDueToday ? (
                   <span className="text-red-500">Due Today</span>
                 ) : notif.isPastDue ? (
-                  <span className="text-red-500">Past Due</span>
+                  <span className="text-red-500">
+                    {Math.abs(notif.daysLeft)} day{Math.abs(notif.daysLeft) > 1 ? "s" : ""} Past Due
+                  </span>
                 ) : (
-                  <span className="text-gray-500">Due on {notif.dueDateFormatted}</span>
+                  <span className="text-gray-500">
+                    {notif.daysLeft > 0
+                      ? `${notif.daysLeft} day${notif.daysLeft > 1 ? "s" : ""} left`
+                      : `1 day Past Due`}
+                  </span>
                 )}
+                <span className="text-gray-400">{notif.dueDateFormatted}</span>
               </div>
               <button
                 onClick={() => handleCrossOutNotification(notif.taskId)}
                 className="text-gray-500 text-sm mt-2"
               >
+        
               </button>
             </div>
           ))
